@@ -11,6 +11,7 @@ public class ApiClient
     private static string? s_appBaseUrl;
     private static int s_initialApiWaitTimeout;
     private static IReadOnlyCollection<int>? s_initialExpectedStatusCodes;
+    private static readonly AsyncLocal<ApiContext?> s_currentContext = new();
 
     private readonly string _apiBaseUrl;
     private readonly string _fullUrl;
@@ -22,9 +23,9 @@ public class ApiClient
 
     private readonly ApiContext _apiContext;
 
-    public ApiClient(string apiBaseUrl, RequestParameters parameters, ApiContext apiContext)
+    public ApiClient(string apiBaseUrl, RequestParameters parameters, ApiContext? apiContext = null)
     {
-        _apiContext = apiContext;
+        _apiContext = apiContext ?? GetContext();
 
         if (s_appBaseUrl == null)
         {
@@ -58,6 +59,19 @@ public class ApiClient
         s_initialApiWaitTimeout = apiWaitTimeout;
         s_initialExpectedStatusCodes = expectedStatusCodes;
         s_appBaseUrl = baseUrl;
+    }
+
+    public static void SetContext(ApiContext context)
+    {
+        s_currentContext.Value = context;
+    }
+
+    internal static ApiContext GetContext()
+    {
+        return s_currentContext.Value
+            ?? throw new Exception(
+                $"ApiContext not set. Are you sure you used {nameof(ApiClient)}.{nameof(SetContext)}()?"
+            );
     }
 
     public async Task<ApiResponse<T>> RequestAsync<T>()
