@@ -1,7 +1,6 @@
-using Microsoft.Playwright;
-using SimpleApiPlaywright.Core.Types;
+using SimpleApiPlaywright.Types;
 
-namespace SimpleApiPlaywright.Core;
+namespace SimpleApiPlaywright;
 
 public abstract class ApiEndpointBase(string apiBaseUrl)
 {

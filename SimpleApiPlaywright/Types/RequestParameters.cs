@@ -1,6 +1,6 @@
-namespace SimpleApiPlaywright.Core.Types;
+namespace SimpleApiPlaywright.Types;
 
-public class RequestParameters
+public sealed class RequestParameters
 {
     public string? Url { get; set; }
     public ApiHttpMethod Method;

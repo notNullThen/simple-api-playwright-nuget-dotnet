@@ -1,8 +1,8 @@
 using Microsoft.Playwright;
 
-namespace SimpleApiPlaywright.Core;
+namespace SimpleApiPlaywright;
 
-public class ApiContext
+public sealed class ApiContext
 {
     private readonly IBrowserContext _browserContext;
     private readonly IAPIRequestContext? _context;

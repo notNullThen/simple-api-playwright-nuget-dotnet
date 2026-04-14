@@ -1,8 +1,8 @@
 using Microsoft.Playwright;
 
-namespace SimpleApiPlaywright.Core.Types;
+namespace SimpleApiPlaywright.Types;
 
-public class ApiResponse<T>
+public sealed class ApiResponse<T>
 {
     public required IAPIResponse Response;
     public T? ResponseBody;

@@ -1,4 +1,4 @@
-namespace SimpleApiPlaywright.Core;
+namespace SimpleApiPlaywright;
 
 public static class TokenStorage
 {

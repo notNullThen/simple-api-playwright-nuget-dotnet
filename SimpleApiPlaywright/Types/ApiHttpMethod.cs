@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace SimpleApiPlaywright.Core.Types;
+namespace SimpleApiPlaywright.Types;
 
 public enum ApiHttpMethod
 {

@@ -1,10 +1,10 @@
 using System.Text.Json;
 using Microsoft.Playwright;
-using SimpleApiPlaywright.Core.Types;
+using SimpleApiPlaywright.Types;
 
-namespace SimpleApiPlaywright.Core;
+namespace SimpleApiPlaywright;
 
-public class ApiClient
+public sealed class ApiClient
 {
     private string? _errorMessage;
 

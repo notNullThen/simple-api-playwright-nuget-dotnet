@@ -1,9 +1,9 @@
 using Microsoft.Playwright;
-using SimpleApiPlaywright.Core.Types;
+using SimpleApiPlaywright.Types;
 
-namespace SimpleApiPlaywright.Core;
+namespace SimpleApiPlaywright;
 
-public class ApiAction<T>
+public sealed class ApiAction<T>
 {
     private readonly ApiContext _apiContext;
     private readonly ApiClient _apiClient;

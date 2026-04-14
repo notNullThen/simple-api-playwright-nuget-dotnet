@@ -1,8 +1,8 @@
 using Microsoft.Playwright;
 
-namespace SimpleApiPlaywright.Core.Types;
+namespace SimpleApiPlaywright.Types;
 
-public class BrowserApiResponse<T>
+public sealed class BrowserApiResponse<T>
 {
     public required IResponse Response;
     public T? ResponseBody;
