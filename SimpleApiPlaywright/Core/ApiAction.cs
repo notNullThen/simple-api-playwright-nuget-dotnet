@@ -11,11 +11,11 @@ public class ApiAction<T>
     private readonly string _apiBaseUrl;
     private readonly RequestParameters _parameters;
 
-    public ApiAction(string apiBaseUrl, RequestParameters parameters, ApiContext apiContext)
+    public ApiAction(string apiBaseUrl, RequestParameters parameters, ApiContext? apiContext = null)
     {
         _apiBaseUrl = apiBaseUrl;
         _parameters = parameters;
-        _apiContext = apiContext;
+        _apiContext = apiContext ?? ApiClient.GetContext();
 
         _apiClient = new ApiClient(_apiBaseUrl, _parameters, _apiContext);
     }
