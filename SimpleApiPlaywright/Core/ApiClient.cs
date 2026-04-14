@@ -20,8 +20,16 @@ public class ApiClient
     private readonly int _apiWaitTimeout;
     private readonly object? _body;
 
-    public ApiClient(string apiBaseUrl, RequestParameters parameters)
+    private readonly IBrowserContext _browserContext;
+
+    public ApiClient(
+        string apiBaseUrl,
+        RequestParameters parameters,
+        IBrowserContext browserContext
+    )
     {
+        _browserContext = browserContext;
+
         if (s_appBaseUrl == null)
         {
             throw new Exception(
@@ -70,32 +78,32 @@ public class ApiClient
 
     private async Task<IAPIResponse> RequestBaseAsync(IAPIRequestContext context)
     {
-        return await Test.StepAsync(
-            $"Request {_method} \"{_route}\", expect {string.Join(", ", _expectedStatusCodes)}",
-            async () =>
+        await _browserContext.Tracing.GroupAsync(
+            $"Request {_method} \"{_route}\", expect {string.Join(", ", _expectedStatusCodes)}"
+        );
+
+        // Separate bodyJson variable for better debug
+        var bodyJson = JsonSerializer.Serialize(_body);
+        var response = await context.FetchAsync(
+            _fullUrl,
+            new()
             {
-                // Separate bodyJson variable for better debug
-                var bodyJson = JsonSerializer.Serialize(_body);
-                var response = await context.FetchAsync(
-                    _fullUrl,
-                    new()
-                    {
-                        Method = _method.ToString(),
-                        Data = bodyJson,
-                        Headers =
-                        [
-                            new("Content-Type", "application/json"),
-                            new("Authorization", GetToken() ?? string.Empty),
-                        ],
-                        Timeout = _apiWaitTimeout,
-                    }
-                );
-
-                ValidateStatusCode(response.Status);
-
-                return response;
+                Method = _method.ToString(),
+                Data = bodyJson,
+                Headers =
+                [
+                    new("Content-Type", "application/json"),
+                    new("Authorization", GetToken() ?? string.Empty),
+                ],
+                Timeout = _apiWaitTimeout,
             }
         );
+
+        ValidateStatusCode(response.Status);
+
+        await _browserContext.Tracing.GroupEndAsync();
+
+        return response;
     }
 
     public async Task<BrowserApiResponse<T>> WaitAsync<T>(IPage page)
@@ -147,50 +155,44 @@ public class ApiClient
 
     private async Task<IResponse> WaitBaseAsync<T>(IPage page)
     {
-        return await Test.StepAsync(
-            $"Wait for {_method} \"{_route}\" {string.Join(", ", _expectedStatusCodes)}",
-            async () =>
-            {
-                var response = await page.WaitForResponseAsync(
-                    (response) =>
-                    {
-                        // Ignore trailing slash and casing differences
-                        var actualUrl = NormalizeUrl(response.Url);
-                        var expectedUrl = NormalizeUrl(_fullUrl);
-                        var requestMethod = response.Request.Method;
-
-                        if (
-                            !actualUrl.Contains(
-                                expectedUrl,
-                                StringComparison.InvariantCultureIgnoreCase
-                            )
-                        )
-                        {
-                            return false;
-                        }
-
-                        if (
-                            !requestMethod.Equals(
-                                _method.ToString(),
-                                StringComparison.InvariantCultureIgnoreCase
-                            )
-                        )
-                        {
-                            return false;
-                        }
-
-                        return true;
-                    },
-                    new() { Timeout = _apiWaitTimeout }
-                );
-
-                _errorMessage = response.StatusText;
-
-                ValidateStatusCode(response.Status);
-
-                return response;
-            }
+        await _browserContext.Tracing.GroupAsync(
+            $"Wait for {_method} \"{_route}\" {string.Join(", ", _expectedStatusCodes)}"
         );
+        var response = await page.WaitForResponseAsync(
+            (response) =>
+            {
+                // Ignore trailing slash and casing differences
+                var actualUrl = NormalizeUrl(response.Url);
+                var expectedUrl = NormalizeUrl(_fullUrl);
+                var requestMethod = response.Request.Method;
+
+                if (!actualUrl.Contains(expectedUrl, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return false;
+                }
+
+                if (
+                    !requestMethod.Equals(
+                        _method.ToString(),
+                        StringComparison.InvariantCultureIgnoreCase
+                    )
+                )
+                {
+                    return false;
+                }
+
+                return true;
+            },
+            new() { Timeout = _apiWaitTimeout }
+        );
+
+        _errorMessage = response.StatusText;
+
+        ValidateStatusCode(response.Status);
+
+        await _browserContext.Tracing.GroupEndAsync();
+
+        return response;
     }
 
     private static async Task<ApiResponse<T>> GetResponseAsync<T>(IAPIResponse response)
