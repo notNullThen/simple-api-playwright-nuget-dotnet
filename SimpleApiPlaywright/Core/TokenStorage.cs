@@ -16,8 +16,7 @@ public static class TokenStorage
 
     public static void Set(string token)
     {
-        if (_apiToken.Value == null)
-            _apiToken.Value = new TokenContainer();
+        _apiToken.Value ??= new TokenContainer();
 
         _apiToken.Value.Token = token;
     }
