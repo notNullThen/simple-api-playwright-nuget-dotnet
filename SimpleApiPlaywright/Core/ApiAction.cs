@@ -1,7 +1,8 @@
 using Microsoft.Playwright;
+using OwaspPlaywrightTests.Base.ApiClient;
 using OwaspPlaywrightTests.Base.ApiClient.Types;
 
-namespace OwaspPlaywrightTests.Base.ApiClient;
+namespace SimpleApiPlaywright.Core;
 
 public class ApiAction<T>
 {
@@ -11,20 +12,25 @@ public class ApiAction<T>
     private readonly string _apiBaseUrl;
     private readonly RequestParameters _parameters;
 
-    public ApiAction(string apiBaseUrl, RequestParameters parameters)
+    public ApiAction(
+        string apiBaseUrl,
+        RequestParameters parameters,
+        IPage? page,
+        IAPIRequestContext? context
+    )
     {
         _apiBaseUrl = apiBaseUrl;
         _parameters = parameters;
 
-        if (Test.Page == null && Test.Request == null)
+        if (page == null && context == null)
         {
             throw new PlaywrightException(
-                $"You need to provide at least '{nameof(Test.Page)}' or '{nameof(Test.Request)}' parameters to create an instance of '{nameof(ApiClient)}'."
+                $"You need to provide at least '{nameof(page)}' or '{nameof(context)}' parameters to create an instance of '{nameof(ApiClient)}'."
             );
         }
 
-        _context = Test.Request ?? Test.Page!.APIRequest;
-        _page = Test.Page;
+        _context = context ?? page!.APIRequest;
+        _page = page;
     }
 
     public async Task<ApiResponse<T>> RequestAsync()
