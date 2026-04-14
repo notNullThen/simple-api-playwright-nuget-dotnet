@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace OwaspPlaywrightTests.Base.ApiClient.Types;
+namespace SimpleApiPlaywright.Core.Types;
 
 public enum ApiHttpMethod
 {

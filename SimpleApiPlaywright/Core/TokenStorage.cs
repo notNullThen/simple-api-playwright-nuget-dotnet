@@ -1,4 +1,4 @@
-namespace OwaspPlaywrightTests.Base.ApiClient;
+namespace SimpleApiPlaywright.Core;
 
 public static class TokenStorage
 {

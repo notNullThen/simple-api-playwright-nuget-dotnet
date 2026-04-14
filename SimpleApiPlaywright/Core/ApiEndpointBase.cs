@@ -1,6 +1,6 @@
-using OwaspPlaywrightTests.Base.ApiClient.Types;
+using SimpleApiPlaywright.Core.Types;
 
-namespace OwaspPlaywrightTests.Base.ApiClient;
+namespace SimpleApiPlaywright.Core;
 
 public abstract class ApiEndpointBase(string apiBaseUrl)
 {

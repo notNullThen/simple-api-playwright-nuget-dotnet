@@ -1,6 +1,6 @@
 using Microsoft.Playwright;
-using OwaspPlaywrightTests.Base.ApiClient;
-using OwaspPlaywrightTests.Base.ApiClient.Types;
+using SimpleApiPlaywright.Core;
+using SimpleApiPlaywright.Core.Types;
 
 namespace SimpleApiPlaywright.Core;
 
