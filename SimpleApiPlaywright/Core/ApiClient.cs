@@ -22,11 +22,7 @@ public class ApiClient
 
     private readonly ApiContext _apiContext;
 
-    public ApiClient(
-        string apiBaseUrl,
-        RequestParameters parameters,
-        ApiContext apiContext
-    )
+    public ApiClient(string apiBaseUrl, RequestParameters parameters, ApiContext apiContext)
     {
         _apiContext = apiContext;
 
