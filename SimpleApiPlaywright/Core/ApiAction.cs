@@ -11,11 +11,7 @@ public class ApiAction<T>
     private readonly string _apiBaseUrl;
     private readonly RequestParameters _parameters;
 
-    public ApiAction(
-        string apiBaseUrl,
-        RequestParameters parameters,
-        ApiContext apiContext
-    )
+    public ApiAction(string apiBaseUrl, RequestParameters parameters, ApiContext apiContext)
     {
         _apiBaseUrl = apiBaseUrl;
         _parameters = parameters;
