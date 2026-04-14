@@ -15,8 +15,8 @@ public class ApiAction<T>
     public ApiAction(
         string apiBaseUrl,
         RequestParameters parameters,
-        IPage? page,
-        IAPIRequestContext? context
+        IPage? page = null,
+        IAPIRequestContext? context = null
     )
     {
         _apiBaseUrl = apiBaseUrl;
