@@ -20,15 +20,15 @@ public class ApiClient
     private readonly int _apiWaitTimeout;
     private readonly object? _body;
 
-    private readonly IBrowserContext _browserContext;
+    private readonly ApiContext _apiContext;
 
     public ApiClient(
         string apiBaseUrl,
         RequestParameters parameters,
-        IBrowserContext browserContext
+        ApiContext apiContext
     )
     {
-        _browserContext = browserContext;
+        _apiContext = apiContext;
 
         if (s_appBaseUrl == null)
         {
@@ -64,27 +64,27 @@ public class ApiClient
         s_appBaseUrl = baseUrl;
     }
 
-    public async Task<ApiResponse<T>> RequestAsync<T>(IAPIRequestContext context)
+    public async Task<ApiResponse<T>> RequestAsync<T>()
     {
-        var response = await RequestBaseAsync(context);
+        var response = await RequestBaseAsync();
         return await GetResponseAsync<T>(response);
     }
 
-    public async Task<ApiResponse<dynamic>> RequestAsync(IAPIRequestContext context)
+    public async Task<ApiResponse<dynamic>> RequestAsync()
     {
-        var response = await RequestBaseAsync(context);
+        var response = await RequestBaseAsync();
         return FormResponse(response);
     }
 
-    private async Task<IAPIResponse> RequestBaseAsync(IAPIRequestContext context)
+    private async Task<IAPIResponse> RequestBaseAsync()
     {
-        await _browserContext.Tracing.GroupAsync(
+        await _apiContext.BrowserContext.Tracing.GroupAsync(
             $"Request {_method} \"{_route}\", expect {string.Join(", ", _expectedStatusCodes)}"
         );
 
         // Separate bodyJson variable for better debug
         var bodyJson = JsonSerializer.Serialize(_body);
-        var response = await context.FetchAsync(
+        var response = await _apiContext.Context.FetchAsync(
             _fullUrl,
             new()
             {
@@ -101,20 +101,20 @@ public class ApiClient
 
         ValidateStatusCode(response.Status);
 
-        await _browserContext.Tracing.GroupEndAsync();
+        await _apiContext.BrowserContext.Tracing.GroupEndAsync();
 
         return response;
     }
 
-    public async Task<BrowserApiResponse<T>> WaitAsync<T>(IPage page)
+    public async Task<BrowserApiResponse<T>> WaitAsync<T>()
     {
-        var response = await WaitBaseAsync<T>(page);
+        var response = await WaitBaseAsync<T>();
         return await GetResponseAsync<T>(response);
     }
 
-    public async Task<BrowserApiResponse<dynamic>> WaitAsync(IPage page)
+    public async Task<BrowserApiResponse<dynamic>> WaitAsync()
     {
-        var response = await WaitBaseAsync<dynamic>(page);
+        var response = await WaitBaseAsync<dynamic>();
         return FormResponse(response);
     }
 
@@ -153,12 +153,19 @@ public class ApiClient
         return url.StartsWith('/') ? url.Substring(1) : url;
     }
 
-    private async Task<IResponse> WaitBaseAsync<T>(IPage page)
+    private async Task<IResponse> WaitBaseAsync<T>()
     {
-        await _browserContext.Tracing.GroupAsync(
+        if (_apiContext.Page == null)
+        {
+            throw new PlaywrightException(
+                $"You can use {nameof(WaitAsync)}() only in the context of UI Tests (The '{nameof(IPage)}' should be available)."
+            );
+        }
+
+        await _apiContext.BrowserContext.Tracing.GroupAsync(
             $"Wait for {_method} \"{_route}\" {string.Join(", ", _expectedStatusCodes)}"
         );
-        var response = await page.WaitForResponseAsync(
+        var response = await _apiContext.Page.WaitForResponseAsync(
             (response) =>
             {
                 // Ignore trailing slash and casing differences
@@ -190,7 +197,7 @@ public class ApiClient
 
         ValidateStatusCode(response.Status);
 
-        await _browserContext.Tracing.GroupEndAsync();
+        await _apiContext.BrowserContext.Tracing.GroupEndAsync();
 
         return response;
     }

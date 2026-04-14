@@ -5,10 +5,9 @@ namespace SimpleApiPlaywright.Core;
 
 public abstract class ApiEndpointBase(
     string apiBaseUrl,
-    IPage? page = null,
-    IAPIRequestContext? context = null
+    ApiContext apiContext
 )
 {
     public ApiAction<T> Action<T>(RequestParameters parameters) =>
-        new(apiBaseUrl, parameters, page, context);
+        new(apiBaseUrl, parameters, apiContext);
 }
