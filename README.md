@@ -1,6 +1,6 @@
 # SimpleApiPlaywright
 
-[![NuGet](https://img.shields.io/badge/nuget-v1.0.0-blue.svg)](https://www.nuget.org/)
+[![NuGet](https://img.shields.io/badge/nuget-v1.0.0-blue.svg)](https://www.nuget.org/packages/SimpleApiPlaywright/)
 [![Playwright](https://img.shields.io/badge/playwright-.net-green.svg)](https://playwright.dev/dotnet/)
 
 A lightweight wrapper for **Playwright .NET** that unifies API requests and UI network assertions. Designed for high-performance automation suites requiring parallel execution and clean architecture.
