@@ -32,8 +32,8 @@ dotnet add package SimpleApiPlaywright
 ```csharp
 public class AuthApi : ApiEndpointBase
 {
-    public ApiAction PostLogin(object body) => 
-        new(ApiHttpMethod.POST, "/rest/user/login", body);
+    public ApiAction<LoginResponse> PostLogin(LoginPayload? payload = null) =>
+        Action<LoginResponse>(new() { Url = "login", Method = ApiHttpMethod.POST, Body = payload } );
 }
 ```
 
@@ -52,7 +52,7 @@ ApiClient.SetContext(new ApiContext(requestContext, page));
 *Requires `IAPIRequestContext` context*
 
 ```csharp
-var response = await Api.Auth.PostLogin(credentials).RequestAsync<LoginResponse>();
+var response = await Api.Auth.PostLogin(credentials).RequestAsync();
 Assert.Equal(200, response.Response.Status);
 ```
 
