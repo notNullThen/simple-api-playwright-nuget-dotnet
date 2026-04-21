@@ -1,6 +1,6 @@
 # SimpleApiPlaywright
 
-[![NuGet](https://img.shields.io/badge/nuget-v1.0.1-blue.svg)](https://www.nuget.org/packages/SimpleApiPlaywright/)
+[![NuGet](https://img.shields.io/badge/nuget-v1.0.2-blue.svg)](https://www.nuget.org/packages/SimpleApiPlaywright/)
 [![GitHub](https://img.shields.io/badge/github-repo-black.svg)](https://github.com/notNullThen/simple-api-playwright-nuget-dotnet)
 
 Do API requests like this:
