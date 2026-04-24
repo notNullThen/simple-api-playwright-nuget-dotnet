@@ -1,23 +1,39 @@
 # SimpleApiPlaywright
 
-[![NuGet](https://img.shields.io/nuget/v/SimpleApiPlaywright.svg)](https://www.nuget.org/packages/SimpleApiPlaywright/)[![npm](https://img.shields.io/npm/v/simple-api-playwright.svg)](https://www.npmjs.com/package/simple-api-playwright)
+[![NuGet](https://img.shields.io/nuget/v/SimpleApiPlaywright.svg)](https://www.nuget.org/packages/SimpleApiPlaywright/)
+[![npm](https://img.shields.io/npm/v/simple-api-playwright.svg)](https://www.npmjs.com/package/simple-api-playwright)
 [![GitHub](https://img.shields.io/badge/github-repo-black.svg)](https://github.com/notNullThen/simple-api-playwright-nuget-dotnet)
 
-Do API requests like this:
+Make API requests like this:
 
 ```csharp
-var response = await Api.CreateUserAsync(user).RequestAsync();
+var response = await UsersApi.CreateUser(user).RequestAsync();
 ```
 
-or API waits like this:
+Or API waits like this:
 
 ```csharp
-var userResponseTask = Api.Users.GetUser().WaitAsync();
+var userResponseTask = UsersApi.GetUser().WaitAsync();
 await Task.WhenAll(
     Page.LoginButton.ClickAsync(),
     userResponseTask
 );
-userResponse...
+```
+
+Before that, define your API endpoints like this:
+
+```csharp
+using SimpleApiPlaywright;
+using SimpleApiPlaywright.Types;
+
+public class UsersApi : ApiEndpointBase("api/users")
+{
+public ApiAction<UserResponse> GetUser() =>
+    Action<UserResponse>(new() { Url = "login", Method = ApiHttpMethod.GET } );
+
+public ApiAction<UserResponse> CreateUser(UserPayload payload) =>
+    Action<UserResponse>(new() { Url = "login", Method = ApiHttpMethod.POST, Body = payload } );
+}
 ```
 
 A lightweight wrapper for **Playwright .NET** that unifies API requests and UI network assertions. Designed for high-performance automation suites requiring parallel execution and clean architecture.
@@ -47,10 +63,16 @@ dotnet add package SimpleApiPlaywright
 
 ### 1. Define your Endpoint
 ```csharp
-public class AuthApi : ApiEndpointBase
+using SimpleApiPlaywright;
+using SimpleApiPlaywright.Types;
+
+public class UsersApi : ApiEndpointBase("api/users")
 {
-    public ApiAction<LoginResponse> PostLogin(LoginPayload? payload = null) =>
-        Action<LoginResponse>(new() { Url = "login", Method = ApiHttpMethod.POST, Body = payload } );
+public ApiAction<UserResponse> GetUser() =>
+    Action<UserResponse>(new() { Url = "login", Method = ApiHttpMethod.GET } );
+
+public ApiAction<UserResponse> CreateUser(UserPayload payload) =>
+    Action<UserResponse>(new() { Url = "login", Method = ApiHttpMethod.POST, Body = payload } );
 }
 ```
 
