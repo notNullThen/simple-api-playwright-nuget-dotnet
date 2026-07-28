@@ -20,6 +20,7 @@ public sealed class ApiClient
     private readonly IReadOnlyCollection<int> _expectedStatusCodes;
     private readonly int _apiWaitTimeout;
     private readonly object? _body;
+    private readonly bool _exactUrlMatch;
 
     private readonly ApiContext _apiContext;
 
@@ -48,6 +49,7 @@ public sealed class ApiClient
         _expectedStatusCodes = parameters.ExpectedStatusCodes ?? s_initialExpectedStatusCodes!;
         _apiWaitTimeout = parameters.apiWaitTimeout ?? s_initialApiWaitTimeout;
         _body = parameters.Body;
+        _exactUrlMatch = parameters.ExactUrlMatch ?? false;
     }
 
     public static void SetInitialConfig(
@@ -183,7 +185,11 @@ public sealed class ApiClient
                 var expectedUrl = NormalizeUrl(_fullUrl);
                 var requestMethod = response.Request.Method;
 
-                if (!actualUrl.Contains(expectedUrl, StringComparison.InvariantCultureIgnoreCase))
+                var isMatch = _exactUrlMatch
+                    ? actualUrl.Equals(expectedUrl, StringComparison.Ordinal)
+                    : actualUrl.Contains(expectedUrl, StringComparison.InvariantCultureIgnoreCase);
+
+                if (!isMatch)
                 {
                     return false;
                 }
