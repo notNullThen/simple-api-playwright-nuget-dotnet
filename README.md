@@ -66,6 +66,7 @@ dotnet add package SimpleApiPlaywright
 ## 🛠️ Quick Start
 
 ### 1. Define your Endpoint
+
 ```csharp
 using SimpleApiPlaywright;
 using SimpleApiPlaywright.Types;
@@ -81,6 +82,7 @@ public ApiAction<UserResponse> CreateUser(UserPayload payload) =>
 ```
 
 ### 2. Global & Test Setup
+
 Before executing requests, you must initialize the global configuration and set the current test context (usually in a test hook):
 
 ```csharp
@@ -88,11 +90,12 @@ Before executing requests, you must initialize the global configuration and set 
 ApiClient.SetInitialConfig(apiWaitTimeout: 5000, expectedStatusCodes: [200, 201], baseUrl: "https://api.example.com");
 
 // Once per test (mandatory):
-ApiClient.SetContext(new ApiContext(requestContext, page)); 
+ApiClient.SetContext(new ApiContext(requestContext, page));
 ```
 
 ### 3. Standalone API Call
-*Requires `IAPIRequestContext` context*
+
+_Requires `IAPIRequestContext` context_
 
 ```csharp
 var response = await Api.Auth.PostLogin(credentials).RequestAsync();
@@ -100,7 +103,8 @@ Assert.Equal(200, response.Response.Status);
 ```
 
 ### 4. UI Synchronization (XHR/Fetch)
-*Requires `IPage` context*
+
+_Requires `IPage` context_
 
 ```csharp
 // Define the task to wait for the network response
@@ -116,10 +120,11 @@ var response = await loginTask;
 ## 🏗️ Architecture
 
 SimpleApiPlaywright is built with **SDET efficiency** in mind:
+
 - **`ApiClient`**: Core engine handling the request/wait logic.
 - **`ApiContext`**: Thread-safe container for `IAPIRequestContext` and `IPage`.
 - **`TokenStorage`**: Centralized, parallel-safe authentication management.
 
 ---
 
-*Part of a larger portfolio demonstrating advanced automation patterns. See the [Implementation Demo](https://github.com/notNullThen/owasp-playwright-api-csharp-docker).*
+_Part of a larger portfolio demonstrating advanced automation patterns. See the [Implementation Demo](https://github.com/notNullThen/owasp-playwright-api-csharp-docker)._
