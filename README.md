@@ -17,11 +17,9 @@ var response = await UsersApi.CreateUser(user).RequestAsync();
 Or API waits like this:
 
 ```csharp
-var userResponseTask = UsersApi.GetUser().WaitAsync();
-await Task.WhenAll(
-    Page.LoginButton.ClickAsync(),
-    userResponseTask
-);
+var userResponseWait = UsersApi.GetUser().WaitAsync();
+await Page.LoginButton.ClickAsync();
+await userResponseWait;
 ```
 
 Before that, define your API endpoints like this:
@@ -30,7 +28,7 @@ Before that, define your API endpoints like this:
 using SimpleApiPlaywright;
 using SimpleApiPlaywright.Types;
 
-public class UsersApi : ApiEndpointBase("api/users")
+public class UsersApi : ApiEndpointBase(apiBaseUrl: "api/users")
 {
 public ApiAction<UserResponse> GetUser() =>
     Action<UserResponse>(new() { Url = "login", Method = ApiHttpMethod.GET } );
@@ -71,7 +69,7 @@ dotnet add package SimpleApiPlaywright
 using SimpleApiPlaywright;
 using SimpleApiPlaywright.Types;
 
-public class UsersApi : ApiEndpointBase("api/users")
+public class UsersApi : ApiEndpointBase(apiBaseUrl: "api/users")
 {
 public ApiAction<UserResponse> GetUser() =>
     Action<UserResponse>(new() { Url = "login", Method = ApiHttpMethod.GET } );
