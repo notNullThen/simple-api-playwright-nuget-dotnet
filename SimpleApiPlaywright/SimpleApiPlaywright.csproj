@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>SimpleApiPlaywright</PackageId>
-    <Version>1.1.1</Version>
+    <Version>1.1.3</Version>
     <Authors>Eugene</Authors>
     <Description>Playwright-based API client framework.</Description>
     <RepositoryUrl>https://github.com/notNullThen/simple-api-playwright-nuget-dotnet</RepositoryUrl>
