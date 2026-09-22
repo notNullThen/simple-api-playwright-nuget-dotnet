@@ -120,8 +120,29 @@ public sealed class ApiClient
 
     public async Task<BrowserApiResponse<T>> WaitAsync<T>()
     {
-        var response = await WaitBaseAsync<T>();
-        return await GetResponseAsync<T>(response);
+        while (true)
+        {
+            var response = await WaitBaseAsync<T>();
+            var responseString = await response.TextAsync();
+
+            if (string.IsNullOrWhiteSpace(responseString))
+            {
+                continue;
+            }
+
+            try
+            {
+                var responseBody = JsonSerializer.Deserialize<T>(responseString);
+                if (responseBody is not null)
+                {
+                    return new() { Response = response, ResponseBody = responseBody };
+                }
+            }
+            catch (JsonException)
+            {
+                // Continue iteration through APIs until we find one with a correct response body that can be deserialized into passed type T
+            }
+        }
     }
 
     public async Task<BrowserApiResponse<dynamic>> WaitAsync()
@@ -230,13 +251,6 @@ public sealed class ApiClient
     private static ApiResponse<dynamic> FormResponse(IAPIResponse response)
     {
         return new() { Response = response, ResponseBody = default };
-    }
-
-    private static async Task<BrowserApiResponse<T>> GetResponseAsync<T>(IResponse response)
-    {
-        var responseString = await response.TextAsync();
-        var responseBody = JsonSerializer.Deserialize<T>(responseString)!;
-        return new() { Response = response, ResponseBody = responseBody };
     }
 
     private static BrowserApiResponse<dynamic> FormResponse(IResponse response)
