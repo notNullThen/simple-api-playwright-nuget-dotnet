@@ -45,6 +45,7 @@ A lightweight wrapper for **Playwright .NET** that unifies API requests and UI n
 ## 🚀 Key Features
 
 - **Unified Interface**: Use the same endpoint definitions for standalone API tests (`RequestAsync`) and UI network synchronization (`WaitAsync`).
+- **Typed Response Matching**: Get the exact API response whose body matches the response type you defined. `WaitAsync<T>()` skips empty or incompatible response bodies.
 - **Parallel Safe**: Built-in `AsyncLocal<ApiContext>` management prevents state leakage across concurrent tests.
 - **Smart Assertions**: Automatic status code validation with descriptive error messages including method and route details.
 - **Tracing Integration**: Automatically groups requests in Steps (Playwright Trace Groups) for better debugging.

@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>SimpleApiPlaywright</PackageId>
-    <Version>1.1.4</Version>
+    <Version>1.1.5</Version>
     <Authors>Eugene</Authors>
     <Description>Playwright-based API client framework.</Description>
     <RepositoryUrl>https://github.com/notNullThen/simple-api-playwright-nuget-dotnet</RepositoryUrl>
