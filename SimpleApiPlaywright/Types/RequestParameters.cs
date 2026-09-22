@@ -1,5 +1,8 @@
 namespace SimpleApiPlaywright.Types;
 
+/// <summary>
+/// Configures an API request and the criteria used to match a browser response.
+/// </summary>
 public sealed class RequestParameters
 {
     /// <summary>
@@ -8,12 +11,12 @@ public sealed class RequestParameters
     public string? Url { get; set; }
 
     /// <summary>
-    /// The HTTP method to be used for the request.
+    /// The HTTP method used for the request or response match.
     /// </summary>
     public ApiHttpMethod Method;
 
     /// <summary>
-    /// List of expected HTTP status codes. If the response status is not in this list, an exception is thrown.
+    /// The accepted response status codes. An unexpected status code causes an exception.
     /// </summary>
     public int[]? ExpectedStatusCodes { get; set; }
 
@@ -23,13 +26,15 @@ public sealed class RequestParameters
     public object? Body { get; set; }
 
     /// <summary>
-    /// Timeout in milliseconds for waiting/intercepting the request or response.
+    /// The timeout in milliseconds for sending the request or waiting for a response. When omitted,
+    /// the value configured through <see cref="ApiClient.SetInitialConfig(int, int[], string)"/> is
+    /// used. Use <c>0</c> to disable the timeout.
     /// </summary>
     public int? apiWaitTimeout;
 
     /// <summary>
-    /// Whether the URL must be an exact match of the entire URL string (leading/trailing slashes are ignored) rather than a partial substring match when waiting/intercepting.
-    /// Defaults to <c>false</c> if not explicitly provided.
+    /// Whether browser responses must match the complete URL instead of containing the configured
+    /// URL. Leading and trailing slashes are ignored. The default is <see langword="false"/>.
     /// </summary>
     public bool? ExactUrlMatch { get; set; }
 }

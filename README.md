@@ -117,6 +117,11 @@ await Page.GetByRole(AriaRole.Button, new() { Name = "Login" }).ClickAsync();
 var response = await loginTask;
 ```
 
+When `WaitAsync<T>()` observes multiple responses with the same URL and HTTP method, it skips
+responses with empty, `null`, or incompatible JSON bodies and continues waiting for one that can
+be deserialized to `T`. If no compatible response follows, the wait ends with Playwright's normal
+timeout error.
+
 ## 🏗️ Architecture
 
 SimpleApiPlaywright is built with **SDET efficiency** in mind:
