@@ -94,13 +94,15 @@ ApiClient.SetInitialConfig(apiWaitTimeout: 5000, expectedStatusCodes: [200, 201]
 ApiClient.SetContext(new ApiContext(requestContext, page));
 ```
 
+`RequestAsync()` and `WaitAsync()` automatically check responses against the configured expected status codes.
+
 ### 3. Standalone API Call
 
 _Requires `IAPIRequestContext` context_
 
 ```csharp
 var response = await Api.Auth.PostLogin(credentials).RequestAsync();
-Assert.Equal(200, response.Response.Status);
+Assert.NotNull(response.ResponseBody?.AccessToken);
 ```
 
 ### 4. UI Synchronization (XHR/Fetch)
