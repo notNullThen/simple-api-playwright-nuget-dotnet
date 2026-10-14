@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Microsoft.Playwright;
 using SimpleApiPlaywright.Types;
@@ -5,7 +6,7 @@ using SimpleApiPlaywright.Types;
 namespace SimpleApiPlaywright;
 
 /// <summary>
-/// Sends API requests and waits for matching responses produced by a Playwright page.
+/// Sends API requests, waits for browser responses, and holds responses for later release.
 /// </summary>
 public sealed class ApiClient
 {
@@ -203,6 +204,111 @@ public sealed class ApiClient
     }
 
     /// <summary>
+    /// Holds the next matching browser response until it is released or disposed.
+    /// </summary>
+    /// <returns>The held response.</returns>
+    public async Task<ApiResponse> HoldResponseAsync()
+    {
+        var page =
+            _apiContext.Page
+            ?? throw new PlaywrightException(
+                $"You can use {nameof(HoldResponseAsync)}() only in UI tests with an {nameof(IPage)}."
+            );
+        var timeout =
+            _apiWaitTimeout == 0
+                ? Timeout.InfiniteTimeSpan
+                : TimeSpan.FromMilliseconds(_apiWaitTimeout);
+        var captured = new TaskCompletionSource<ApiResponse>(
+            TaskCreationOptions.RunContinuationsAsynchronously
+        );
+        var pendingRoutes = new ConcurrentBag<Task>();
+        Func<string, bool> matchesUrl = url => MatchesUrl(url, _fullUrl);
+        Func<IRoute, Task> handler = null!;
+
+        async Task RemoveRouteAsync()
+        {
+            // Finish other intercepted requests before removing the handler to avoid replaying them.
+            await Task.WhenAll(pendingRoutes);
+            if (!page.IsClosed)
+            {
+                await page.UnrouteAsync(matchesUrl, handler);
+            }
+        }
+
+        handler = async route =>
+        {
+            var finished = new TaskCompletionSource(
+                TaskCreationOptions.RunContinuationsAsynchronously
+            );
+            pendingRoutes.Add(finished.Task);
+            IAPIResponse? response = null;
+            try
+            {
+                if (captured.Task.IsCompleted || !MatchesMethod(route.Request))
+                {
+                    await route.FallbackAsync();
+                    return;
+                }
+
+                response = await route.FetchAsync(
+                    new() { Timeout = _apiWaitTimeout, MaxRedirects = 0 }
+                );
+                var handle = new ApiResponse(route, response, timeout, RemoveRouteAsync);
+                if (_expectedStatusCodes.Contains(response.Status) && captured.TrySetResult(handle))
+                {
+                    response = null;
+                    finished.TrySetResult();
+                    await handle.Completion;
+                    return;
+                }
+
+                await route.FulfillAsync(new() { Response = response });
+            }
+            catch (Exception exception)
+            {
+                captured.TrySetException(exception);
+                if (!page.IsClosed && route.Request.Failure == null)
+                {
+                    await route.AbortAsync();
+                }
+            }
+            finally
+            {
+                try
+                {
+                    if (response != null)
+                    {
+                        await response.DisposeAsync();
+                    }
+                }
+                finally
+                {
+                    finished.TrySetResult();
+                }
+            }
+        };
+
+        await page.RouteAsync(matchesUrl, handler);
+        try
+        {
+            return await captured.Task.WaitAsync(timeout);
+        }
+        catch
+        {
+            captured.TrySetCanceled();
+            if (captured.Task.IsCompletedSuccessfully)
+            {
+                await captured.Task.Result.DisposeAsync();
+            }
+            else
+            {
+                await RemoveRouteAsync();
+            }
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Sets the token value used in the <c>Authorization</c> header of direct API requests in the
     /// current asynchronous execution flow.
     /// </summary>
@@ -257,31 +363,7 @@ public sealed class ApiClient
         var response = await _apiContext.Page.WaitForResponseAsync(
             (response) =>
             {
-                // Ignore trailing slash and casing differences
-                var actualUrl = NormalizeUrl(response.Url);
-                var expectedUrl = NormalizeUrl(_fullUrl);
-                var requestMethod = response.Request.Method;
-
-                var isMatch = _exactUrlMatch
-                    ? actualUrl.Equals(expectedUrl, StringComparison.Ordinal)
-                    : actualUrl.Contains(expectedUrl, StringComparison.InvariantCultureIgnoreCase);
-
-                if (!isMatch)
-                {
-                    return false;
-                }
-
-                if (
-                    !requestMethod.Equals(
-                        _method.ToString(),
-                        StringComparison.InvariantCultureIgnoreCase
-                    )
-                )
-                {
-                    return false;
-                }
-
-                return true;
+                return MatchesUrl(response.Url, _fullUrl) && MatchesMethod(response.Request);
             },
             new() { Timeout = _apiWaitTimeout }
         );
@@ -294,6 +376,18 @@ public sealed class ApiClient
 
         return response;
     }
+
+    private bool MatchesUrl(string url, string expectedUrl)
+    {
+        var actual = NormalizeUrl(url);
+        var expected = NormalizeUrl(expectedUrl);
+        return _exactUrlMatch
+            ? actual.Equals(expected, StringComparison.Ordinal)
+            : actual.Contains(expected, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    private bool MatchesMethod(IRequest request) =>
+        request.Method.Equals(_method.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
     private static async Task<ApiResponse<T>> GetResponseAsync<T>(IAPIResponse response)
     {

@@ -5,10 +5,10 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>SimpleApiPlaywright</PackageId>
-    <Version>1.1.6</Version>
+    <Version>1.2.0</Version>
     <Authors>Eugene</Authors>
     <Description>Playwright-based API client framework.</Description>
-    <PackageReleaseNotes>README update: clarified automatic status validation and updated the response assertion example.</PackageReleaseNotes>
+    <PackageReleaseNotes>Hold browser API responses and release them later, with optional delivery validation and automatic cleanup.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/notNullThen/simple-api-playwright-nuget-dotnet</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

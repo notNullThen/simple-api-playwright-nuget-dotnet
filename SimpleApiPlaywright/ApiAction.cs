@@ -4,7 +4,7 @@ using SimpleApiPlaywright.Types;
 namespace SimpleApiPlaywright;
 
 /// <summary>
-/// Represents a configured API operation that can either be sent directly or observed on a
+/// Represents a configured API operation that can be sent directly, observed, or held on a
 /// Playwright page.
 /// </summary>
 /// <typeparam name="T">The expected response body type.</typeparam>
@@ -52,4 +52,11 @@ public sealed class ApiAction<T>
     {
         return await _apiClient.WaitAsync<T>();
     }
+
+    /// <summary>
+    /// Fetches and holds the next matching browser response until it is released or disposed.
+    /// The response body is available on the returned handle without being deserialized.
+    /// </summary>
+    /// <returns>A held response. Dispose it to abort the request if it is never released.</returns>
+    public Task<ApiResponse> HoldAsync() => _apiClient.HoldResponseAsync();
 }

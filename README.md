@@ -45,6 +45,7 @@ A lightweight wrapper for **Playwright .NET** that unifies API requests and UI n
 ## 🚀 Key Features
 
 - **Unified Interface**: Use the same endpoint definitions for standalone API tests (`RequestAsync`) and UI network synchronization (`WaitAsync`).
+- **Hold and Release**: Keep a fetched API response pending in the browser with `HoldAsync()`, then release it when your test is ready.
 - **Typed Response Matching**: Get the exact API response whose body matches the response type you defined. `WaitAsync<T>()` skips empty or incompatible response bodies.
 - **Parallel Safe**: Built-in `AsyncLocal<ApiContext>` management prevents state leakage across concurrent tests.
 - **Smart Assertions**: Automatic status code validation with descriptive error messages including method and route details.
@@ -124,6 +125,25 @@ When `WaitAsync<T>()` observes multiple responses with the same URL and HTTP met
 responses with empty, `null`, or incompatible JSON bodies and continues waiting for one that can
 be deserialized to `T`. If no compatible response follows, the wait ends with Playwright's normal
 timeout error.
+
+### 5. Hold a Response and Release It Later
+
+_Requires `IPage` context_
+
+Use an existing endpoint definition:
+
+```csharp
+var holdTask = Api.Users.GetUser().HoldAsync();
+await Page.GetByRole(AriaRole.Button, new() { Name = "Load user" }).ClickAsync();
+
+await using var heldResponse = await holdTask;
+// The server has responded, but the browser is still waiting.
+await Expect(Page.GetByText("Loading...")).ToBeVisibleAsync();
+await heldResponse.ReleaseAsync();
+
+await Expect(Page.GetByText("Loading...")).ToBeHiddenAsync();
+await Expect(Page.GetByTestId("user-name")).ToHaveTextAsync("Jane Doe");
+```
 
 ## 🏗️ Architecture
 

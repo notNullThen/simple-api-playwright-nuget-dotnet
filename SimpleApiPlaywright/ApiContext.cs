@@ -17,7 +17,7 @@ public sealed class ApiContext
     /// <param name="browserContext">The browser context used for tracing.</param>
     /// <param name="page">
     /// The page used to observe browser responses. Required when using
-    /// <see cref="ApiClient.WaitAsync{T}"/>.
+    /// <see cref="ApiClient.WaitAsync{T}"/> or <see cref="ApiClient.HoldResponseAsync()"/>.
     /// </param>
     /// <param name="context">
     /// The request context used for direct API calls. When omitted, <paramref name="page"/>'s
