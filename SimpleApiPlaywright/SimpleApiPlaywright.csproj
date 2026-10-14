@@ -5,15 +5,15 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>SimpleApiPlaywright</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>Eugene</Authors>
     <Description>Playwright-based API client framework.</Description>
-    <PackageReleaseNotes>Hold browser API responses and release them later, with optional delivery validation and automatic cleanup.</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated Microsoft.Playwright to 1.63.0.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/notNullThen/simple-api-playwright-nuget-dotnet</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Playwright" Version="1.59.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.63.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />
